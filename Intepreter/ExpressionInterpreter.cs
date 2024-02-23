@@ -21,10 +21,9 @@ class ExpressionInterpreter
     {
         // Преобразование входного выражения в обратную польскую запись
         var postfixExpression = ConvertToPostfix(expression);
-        Console.WriteLine(postfixExpression);
 
         // Вычисление результата с использованием обратной польской записи
-        var result = EvaluatePostfix(expression);
+        var result = EvaluatePostfix(postfixExpression);
 
         return result;
     }
@@ -78,37 +77,46 @@ class ExpressionInterpreter
     
     private double EvaluatePostfix(string postfixExpression)
     {
-        // Обработка унарных операций (таких как sin, cos и т.д.)
-        foreach (var op in _operations.Where(e => e.Value.type == OperationType.Unary))
+        var operands = new Stack<double>();
+        var tokens = postfixExpression.Split(' ');
+
+        try
         {
-            var match = Regex.Match(postfixExpression, $@"\([^)]+\){op.Key}|{op.Key}\((\d+\.\d+?)\){op.Key}");
-            while (match.Success)
+            foreach (var token in tokens)
             {
-                var innerExpression = match.Groups[1].Value;
-                var innerResult = EvaluatePostfix(innerExpression);
-                var result = _operations[op.Key];
-                postfixExpression = postfixExpression.Replace($"{op.Key}({innerExpression})", result.unaryMethod(innerResult).ToString());
-                match = Regex.Match(postfixExpression, $@"\([^)]+\){op.Key}|\((\d+\.\d+?)\){op.Key}");
+                if (double.TryParse(token, out var number))
+                {
+                    operands.Push(number);
+                }
+                else if (char.IsLetter(token[0]) && token.Length == 1)
+                {
+                    // Обработка переменных, если необходимо
+                    // В данном коде переменные просто игнорируются
+                }
+                else if (_operations[token].type == OperationType.Binary)
+                {
+                    // Бинарные операции
+                    var operand2 = operands.Pop();
+                    var operand1 = operands.Pop();
+                    var result = _operations[token].method(operand1, operand2);
+                    operands.Push(result);
+                }
+                else if (_operations[token].type == OperationType.Unary)
+                {
+                    // Унарные операции
+                    var operand = operands.Pop();
+                    var result = _operations[token].unaryMethod(operand);
+                    operands.Push(result);
+                }
             }
+        }
+        catch (InvalidOperationException)
+        {
+            // Обработка случая, когда стек оказывается пустым
+            Console.WriteLine("Ошибка: неверное выражение.");
+            return double.NaN; // или другое значение, которое указывает на ошибку
         }
 
-        // Обработка бинарных операций (таких как +, -, * и т.д.)
-        var tokens = postfixExpression.Split(' ');
-        var stack = new Stack<double>();
-        foreach (var token in tokens)
-        {
-            if (_operations.TryGetValue(token, out var operation))
-            {
-                var rightOperand = stack.Pop();
-                var leftOperand = stack.Pop();
-                var result = operation.method;
-                stack.Push(result(leftOperand, rightOperand));
-            }
-            else
-            {
-                stack.Push(double.Parse(token));
-            }
-        }
-        return stack.Pop();
+        return operands.Pop();
     }
 }
