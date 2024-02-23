@@ -42,7 +42,7 @@ class ExpressionInterpreter
 
             if (_operations.ContainsKey(token))
             {
-                while (stack.Count > 0 && _operations.ContainsKey(stack.Peek()) && _operations[stack.Peek()].priority >= _operations[token].priority)
+                while (stack.Count > 0 && _operations.ContainsKey(stack.Peek()) && _operations[stack.Peek()].Priority >= _operations[token].Priority)
                 {
                     output.Add(stack.Pop());
                 }
@@ -93,19 +93,19 @@ class ExpressionInterpreter
                     // Обработка переменных, если необходимо
                     // В данном коде переменные просто игнорируются
                 }
-                else if (_operations[token].type == OperationType.Binary)
+                else if (_operations[token].Type == OperationType.Binary)
                 {
                     // Бинарные операции
                     var operand2 = operands.Pop();
                     var operand1 = operands.Pop();
-                    var result = _operations[token].method(operand1, operand2);
+                    var result = _operations[token].BinaryMethod(operand1, operand2);
                     operands.Push(result);
                 }
-                else if (_operations[token].type == OperationType.Unary)
+                else if (_operations[token].Type == OperationType.Unary)
                 {
                     // Унарные операции
                     var operand = operands.Pop();
-                    var result = _operations[token].unaryMethod(operand);
+                    var result = _operations[token].UnaryMethod(operand);
                     operands.Push(result);
                 }
             }
