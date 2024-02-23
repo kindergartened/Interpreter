@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Intepreter;
 
@@ -24,6 +23,11 @@ public class ExpressionInterpreter
         { "cos", new UnaryExpression(4, Math.Cos, OperationType.Unary) },
         { "tan", new UnaryExpression(4, Math.Tan, OperationType.Unary) },
         { "cot", new UnaryExpression(4, (a) => 1 / Math.Tan(a), OperationType.Unary) },
+        { "sinh", new UnaryExpression(4, Math.Sinh, OperationType.Unary) },
+        { "cosh", new UnaryExpression(4, Math.Cosh, OperationType.Unary) },
+        { "tanh", new UnaryExpression(4, Math.Tanh, OperationType.Unary) },
+        { "e", new UnaryExpression(4, Math.Exp, OperationType.Unary) },
+        { "log", new UnaryExpression(4, Math.Log, OperationType.Unary) },
         
         // Logical
         { "<", new LogicalExpression<double>(0, (a, b) => a < b, OperationType.LogicalDouble) },
@@ -70,23 +74,17 @@ public class ExpressionInterpreter
         foreach (var token in Regex.Split(infixExpression, @"(\s+|\b)"))
         {
             if (string.IsNullOrWhiteSpace(token))
-            {
                 continue;
-            }
 
             if (_operations.TryGetValue(token, out var operation))
             {
                 while (stack.Count > 0 && _operations.ContainsKey(stack.Peek()) && _operations[stack.Peek()].Priority >= operation.Priority)
-                {
                     output.Add(stack.Pop());
-                }
 
                 stack.Push(token);
             }
             else if (token == "(")
-            {
                 stack.Push(token);
-            }
             else if (token == ")")
             {
                 string top;
@@ -96,26 +94,20 @@ public class ExpressionInterpreter
                 }
             }
             else
-            {
                 output.Add(token);
-            }
         }
 
         while (stack.Count > 0)
-        {
             output.Add(stack.Pop());
-        }
 
         var result = output[0];
         for (var i = 1; i < output.Count; i++)
-        {
             result += output[i] == "," ? output[i] :
                 output[i - 1] == "," ?
                     i == output.Count ? output[i] + " " :
                         output[i] :
                     i == output.Count ? " " + output[i] + " " :
                     " " + output[i];
-        }
 
         return result;
     }
@@ -133,9 +125,7 @@ public class ExpressionInterpreter
         foreach (var token in tokens)
         {
             if (double.TryParse(token, out var number))
-            {
                 operands.Push(number);
-            }
             else if (_operations[token].Type == OperationType.Binary)
             {
                 // Бинарные операции
@@ -154,10 +144,7 @@ public class ExpressionInterpreter
                 var operand = operands.Pop();
                 var expression = (UnaryExpression)_operations[token];
                 if (expression.Method != null)
-                {
-                    var result = expression.Method(operand);
-                    operands.Push(result);
-                }
+                    operands.Push(expression.Method(operand));
             }
             else if (_operations[token].Type == OperationType.LogicalDouble)
             {
@@ -166,10 +153,7 @@ public class ExpressionInterpreter
                 var operand1 = operands.Pop();
                 var expression = (LogicalExpression<double>)_operations[token];
                 if (expression.Method != null)
-                {
-                    var result = expression.Method(operand1, operand2);
-                    operands.Push(result ? 1 : 0);
-                }
+                    operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
             }
             else if (_operations[token].Type == OperationType.Logical)
             {
@@ -178,10 +162,7 @@ public class ExpressionInterpreter
                 var operand1 = operands.Pop() != 0.0;
                 var expression = (LogicalExpression<bool>)_operations[token];
                 if (expression.Method != null)
-                {
-                    var result = expression.Method(operand1, operand2);
-                    operands.Push(result ? 1 : 0);
-                }
+                    operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
             }
         }
 
@@ -196,41 +177,54 @@ public class ExpressionInterpreter
     public List<Token> Tokenize(string expression)
     {
         var tokens = new List<Token>();
+        expression = ConvertToPostfix(expression);
 
-        foreach (var token in Regex.Split(expression, @"(\s+|\b)"))
+        foreach (var token in expression.Split(" "))
         {
             if (string.IsNullOrWhiteSpace(token))
-            {
                 continue;
-            }
-
-            if (_operations.ContainsKey(token))
-            {
-                tokens.Add(new Token(token, TokenType.Operator));
-            }
             else if (token == "(")
-            {
                 tokens.Add(new Token(token, TokenType.LeftParenthesis));
-            }
             else if (token == ")")
-            {
                 tokens.Add(new Token(token, TokenType.RightParenthesis));
-            }
-            else if (_operations.ContainsKey(token.ToLower()))
-            {
-                tokens.Add(new Token(token.ToLower(), TokenType.Function));
-            }
             else if (double.TryParse(token, out _))
-            {
                 tokens.Add(new Token(token, TokenType.Number));
-            }
+            else if (_operations[token].Type == OperationType.Binary)
+                tokens.Add(new Token(token, TokenType.Operator));
+            else if (_operations[token].Type == OperationType.Unary)
+                tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
+            else if (_operations[token].Type == OperationType.Logical || _operations[token].Type == OperationType.LogicalDouble)
+                tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
             else
-            {
-                // Неизвестный токен
                 tokens.Add(new Token(token, TokenType.Unknown));
-            }
         }
 
         return tokens;
+    }
+
+    public string BuildTree(string infix)
+    {
+        return BuildExpressionTree(ConvertToPostfix(infix)).ToString();
+    }
+    
+    private ExpressionNode BuildExpressionTree(string postfixExpression)
+    {
+        var stack = new Stack<ExpressionNode>();
+
+        foreach (var token in postfixExpression.Split(' '))
+        {
+            if (_operations.ContainsKey(token))
+            {
+                var operationNode = new ExpressionNode(token);
+                operationNode.Right = stack.Pop();
+                if (stack.Count != 0)
+                    operationNode.Left = stack.Pop();
+                stack.Push(operationNode);
+            }
+            else
+                stack.Push(new ExpressionNode(token));
+        }
+
+        return stack.Pop();
     }
 }

@@ -6,6 +6,7 @@ public enum TokenType
     Operator,
     LeftParenthesis,
     RightParenthesis,
-    Function,
+    UnaryFunction,
+    LogicalFunction,
     Unknown
 }
