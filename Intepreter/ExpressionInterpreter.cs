@@ -203,7 +203,7 @@ public class ExpressionInterpreter
                 continue;
             }
 
-            if (_operations.ContainsKey(token))
+            if (_operations[token].Type == OperationType.Binary)
             {
                 tokens.Add(new Token(token, TokenType.Operator));
             }
@@ -215,9 +215,13 @@ public class ExpressionInterpreter
             {
                 tokens.Add(new Token(token, TokenType.RightParenthesis));
             }
-            else if (_operations.ContainsKey(token.ToLower()))
+            else if (_operations[token].Type == OperationType.Unary)
             {
-                tokens.Add(new Token(token.ToLower(), TokenType.Function));
+                tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
+            }
+            else if (_operations[token].Type == OperationType.Logical || _operations[token].Type == OperationType.LogicalDouble)
+            {
+                tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
             }
             else if (double.TryParse(token, out _))
             {
