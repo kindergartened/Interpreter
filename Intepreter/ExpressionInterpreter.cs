@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Intepreter;
 
-class ExpressionInterpreter
+public class ExpressionInterpreter
 {
     /// <summary>
     /// Словарь со всеми методами и их приоритетами
@@ -125,7 +125,7 @@ class ExpressionInterpreter
     /// </summary>
     /// <param name="postfixExpression">Строчка обратной польской записи</param>
     /// <returns>Результат выражения в double</returns>
-    private double EvaluatePostfix(string postfixExpression)
+    public double EvaluatePostfix(string postfixExpression)
     {
         var operands = new Stack<double>();
         var tokens = postfixExpression.Split(' ');
