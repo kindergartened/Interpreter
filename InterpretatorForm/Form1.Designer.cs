@@ -64,9 +64,11 @@
             button1.TabIndex = 2;
             button1.Text = "Обратная польская запись";
             button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
             // 
             // richTextBox2
             // 
+            richTextBox2.Font = new Font("Segoe UI Semibold", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
             richTextBox2.Location = new Point(250, 22);
             richTextBox2.Name = "richTextBox2";
             richTextBox2.ReadOnly = true;
@@ -87,6 +89,7 @@
             button2.TabIndex = 4;
             button2.Text = "Сохранить и вычислить";
             button2.UseVisualStyleBackColor = false;
+            button2.Click += button2_Click;
             // 
             // button3
             // 
@@ -101,6 +104,7 @@
             button3.TabIndex = 5;
             button3.Text = "Список лексем";
             button3.UseVisualStyleBackColor = false;
+            button3.Click += button3_Click;
             // 
             // groupBox1
             // 

@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Intepreter;
 
-class ExpressionInterpreter
+public class ExpressionInterpreter
 {
     /// <summary>
     /// Словарь со всеми методами и их приоритетами
