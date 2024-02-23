@@ -202,11 +202,6 @@ public class ExpressionInterpreter
             {
                 continue;
             }
-
-            if (_operations[token].Type == OperationType.Binary)
-            {
-                tokens.Add(new Token(token, TokenType.Operator));
-            }
             else if (token == "(")
             {
                 tokens.Add(new Token(token, TokenType.LeftParenthesis));
@@ -215,6 +210,14 @@ public class ExpressionInterpreter
             {
                 tokens.Add(new Token(token, TokenType.RightParenthesis));
             }
+            else if (double.TryParse(token, out _))
+            {
+                tokens.Add(new Token(token, TokenType.Number));
+            }
+            else if (_operations[token].Type == OperationType.Binary)
+            {
+                tokens.Add(new Token(token, TokenType.Operator));
+            }
             else if (_operations[token].Type == OperationType.Unary)
             {
                 tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
@@ -222,10 +225,6 @@ public class ExpressionInterpreter
             else if (_operations[token].Type == OperationType.Logical || _operations[token].Type == OperationType.LogicalDouble)
             {
                 tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
-            }
-            else if (double.TryParse(token, out _))
-            {
-                tokens.Add(new Token(token, TokenType.Number));
             }
             else
             {
