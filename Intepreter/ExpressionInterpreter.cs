@@ -203,11 +203,21 @@ public class ExpressionInterpreter
         return tokens;
     }
 
+    /// <summary>
+    /// Построение дерева из инфиксной записи выражения
+    /// </summary>
+    /// <param name="infix">Строка в инфиксной форме</param>
+    /// <returns>Строчное представление дерева</returns>
     public string BuildTree(string infix)
     {
         return BuildExpressionTree(ConvertToPostfix(infix)).ToString();
     }
     
+    /// <summary>
+    /// Построение дерева из постфиксной записи выражения
+    /// </summary>
+    /// <param name="postfixExpression">Строка в постфиксной форме</param>
+    /// <returns>ExpressionNode дерево</returns>
     private ExpressionNode BuildExpressionTree(string postfixExpression)
     {
         var stack = new Stack<ExpressionNode>();
