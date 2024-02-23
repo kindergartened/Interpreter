@@ -236,4 +236,35 @@ public class ExpressionInterpreter
 
         return tokens;
     }
+
+    public string BuildTree(string infix)
+    {
+        var postfix = ConvertToPostfix(infix);
+        return BuildExpressionTree(postfix).ToString();
+    }
+    
+    private ExpressionNode BuildExpressionTree(string postfixExpression)
+    {
+        var stack = new Stack<ExpressionNode>();
+
+        foreach (var token in postfixExpression.Split(' '))
+        {
+            if (_operations.ContainsKey(token))
+            {
+                var operationNode = new ExpressionNode(token);
+                operationNode.Right = stack.Pop();
+                if (stack.Count != 0)
+                {
+                    operationNode.Left = stack.Pop();
+                }
+                stack.Push(operationNode);
+            }
+            else
+            {
+                stack.Push(new ExpressionNode(token));
+            }
+        }
+
+        return stack.Pop();
+    }
 }
