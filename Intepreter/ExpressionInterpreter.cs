@@ -197,7 +197,7 @@ public class ExpressionInterpreter
         var tokens = new List<Token>();
         expression = ConvertToPostfix(expression);
 
-        foreach (var token in Regex.Split(expression, @"(\s+|\b)"))
+        foreach (var token in expression.Split(" "))
         {
             if (string.IsNullOrWhiteSpace(token))
             {
