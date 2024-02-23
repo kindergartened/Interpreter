@@ -1,5 +1,12 @@
 ﻿namespace Intepreter;
 
+/// <summary>
+/// Структура выражения, может содержать:
+///     - Приоритет *
+///     - Тип выражения *
+///     - Бинарный метод
+///     - Унарный метод
+/// </summary>
 struct Expression
 {
     public int Priority;
