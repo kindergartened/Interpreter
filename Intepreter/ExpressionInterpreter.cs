@@ -5,9 +5,9 @@ namespace Intepreter;
 public class ExpressionInterpreter
 {
     /// <summary>
-    /// Словарь со всеми методами и их приоритетами
+    /// Словарь со всеми операциями и их приоритетами
     ///     Ключ - строка метода.
-    ///     Значение - класс Expression.
+    ///     Значение - объект, наследник класса Expression.
     /// </summary>
     private readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
     {
@@ -50,12 +50,8 @@ public class ExpressionInterpreter
     /// <returns>Значение выражения</returns>
     public double Interpret(string expression)
     {
-        // Преобразование входного выражения в обратную польскую запись
         var postfixExpression = ConvertToPostfix(expression);
 
-        Console.WriteLine(postfixExpression);
-
-        // Вычисление результата с использованием обратной польской записи
         var result = EvaluatePostfix(postfixExpression);
 
         return result;
@@ -204,7 +200,9 @@ public class ExpressionInterpreter
     }
 
     /// <summary>
-    /// Построение дерева из инфиксной записи выражения
+    /// Построение дерева лексического анализа из постфиксной записи выражения
+    ///     - переводит выражение в постфиксную запись
+    ///     - из переведенного выражения делает дерево 
     /// </summary>
     /// <param name="infix">Строка в инфиксной форме</param>
     /// <returns>Строчное представление дерева</returns>
