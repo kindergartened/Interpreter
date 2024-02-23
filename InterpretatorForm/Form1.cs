@@ -38,6 +38,22 @@ public partial class Form1 : Form
         richTextBox2.Text = _expressionInterpreter.ConvertToPostfix(_expresion);
     }
 
+    private void button3_Click(object sender, EventArgs e)
+    {
+        List<Token> list = _expressionInterpreter.Tokenize(_expresion);
+        string result = "";
+        for (int i = 0; i < list.Count; i++)
+        {
+            result += $"{list[i].Type}: {list[i].Value} \n";
+        }
+        richTextBox2.Text = result;
+    }
+
+    private void button4_Click(object sender, EventArgs e)
+    {
+        richTextBox2.Text = _expressionInterpreter.BuildTree(_expresion);
+    }
+
     private void ButtonsOptions(bool enabled, string color)
     {
         button1.Enabled = enabled; button1.BackColor = ColorTranslator.FromHtml(color);
@@ -53,16 +69,5 @@ public partial class Form1 : Form
             MessageBoxButtons.OK,
             MessageBoxIcon.Error,
             MessageBoxDefaultButton.Button1);
-    }
-
-    private void button3_Click(object sender, EventArgs e)
-    {
-        List<Token> list = _expressionInterpreter.Tokenize(_expresion);
-        string result = "";
-        for (int i = 0; i < list.Count; i++)
-        {
-            result += $"{list[i].Type}: {list[i].Value} \n";
-        }
-        richTextBox2.Text = result;
     }
 }
