@@ -30,14 +30,15 @@ public class ExpressionInterpreter
         { "log", new UnaryExpression(4, Math.Log, OperationType.Unary) },
         
         // Logical
-        { "<", new LogicalExpression<double>(0, (a, b) => a < b, OperationType.LogicalDouble) },
-        { "<=", new LogicalExpression<double>(0, (a, b) => a <= b, OperationType.LogicalDouble) },
-        { ">", new LogicalExpression<double>(0, (a, b) => a > b, OperationType.LogicalDouble) },
-        { ">=", new LogicalExpression<double>(0, (a, b) => a >= b, OperationType.LogicalDouble) },
-        { "&&", new LogicalExpression<bool>(0, (a, b) => a && b, OperationType.Logical) },
-        { "||", new LogicalExpression<bool>(0, (a, b) => a || b, OperationType.Logical) },
-        { "&", new LogicalExpression<bool>(0,(a, b) => a & b, OperationType.Logical) },
-        { "|", new LogicalExpression<bool>(0, (a, b) => a | b, OperationType.Logical) },
+        { "<", new LogicalExpression<double>(-3, (a, b) => a < b, OperationType.LogicalDouble) },
+        { "<=", new LogicalExpression<double>(-4, (a, b) => a <= b, OperationType.LogicalDouble) },
+        { ">", new LogicalExpression<double>(-3, (a, b) => a > b, OperationType.LogicalDouble) },
+        { ">=", new LogicalExpression<double>(-4, (a, b) => a >= b, OperationType.LogicalDouble) },
+        { "&&", new LogicalExpression<bool>(-1, (a, b) => a && b, OperationType.Logical) },
+        { "||", new LogicalExpression<bool>(-2, (a, b) => a || b, OperationType.Logical) },
+        { "&", new LogicalExpression<bool>(-1,(a, b) => a & b, OperationType.Logical) },
+        { "|", new LogicalExpression<bool>(-2, (a, b) => a | b, OperationType.Logical) },
+        { "==", new LogicalExpression<bool>(0, (a, b) => a == b, OperationType.Logical) },
     };
     
     /// <summary>
