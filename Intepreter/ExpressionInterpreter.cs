@@ -23,6 +23,11 @@ public class ExpressionInterpreter
         { "cos", new UnaryExpression(4, Math.Cos, OperationType.Unary) },
         { "tan", new UnaryExpression(4, Math.Tan, OperationType.Unary) },
         { "cot", new UnaryExpression(4, (a) => 1 / Math.Tan(a), OperationType.Unary) },
+        { "sinh", new UnaryExpression(4, Math.Sinh, OperationType.Unary) },
+        { "cosh", new UnaryExpression(4, Math.Cosh, OperationType.Unary) },
+        { "tanh", new UnaryExpression(4, Math.Tanh, OperationType.Unary) },
+        { "e", new UnaryExpression(4, Math.Exp, OperationType.Unary) },
+        { "log", new UnaryExpression(4, Math.Log, OperationType.Unary) },
         
         // Logical
         { "<", new LogicalExpression<double>(0, (a, b) => a < b, OperationType.LogicalDouble) },
