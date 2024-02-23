@@ -195,7 +195,7 @@ public class ExpressionInterpreter
     public List<Token> Tokenize(string expression)
     {
         var tokens = new List<Token>();
-        expression = expression.Replace('.', ',');
+        expression = ConvertToPostfix(expression);
 
         foreach (var token in Regex.Split(expression, @"(\s+|\b)"))
         {
