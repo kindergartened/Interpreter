@@ -2,23 +2,64 @@
 
 /// <summary>
 /// Структура выражения, может содержать:
-///     - Приоритет *
-///     - Тип выражения *
-///     - Бинарный метод
-///     - Унарный метод
+///     - Приоритет
+///     - Тип выражения
 /// </summary>
-struct Expression
+abstract class Expression
 {
     public int Priority;
-    public Func<double, double, double>? BinaryMethod;
-    public Func<double, double>? UnaryMethod;
     public OperationType Type;
     
-    public Expression(int priority, Func<double, double, double>? binaryMethod, Func<double, double>? unaryMethod, OperationType type)
+    public Expression(
+        int priority, 
+        OperationType type)
     {
         Priority = priority;
-        BinaryMethod = binaryMethod;
         Type = type;
-        UnaryMethod = unaryMethod;
+    }
+}
+
+class BinaryExpression : Expression
+{
+    public Func<double, double, double>? Method;
+
+    public BinaryExpression(int priority, 
+        Func<double, double, double>? binaryMethod,
+        OperationType type
+        ) : base(priority, type)
+    {
+        Priority = priority;
+        Type = type;
+        Method = binaryMethod;
+    }
+}
+
+class UnaryExpression : Expression
+{
+    public Func<double, double>? Method;
+
+    public UnaryExpression(int priority, 
+        Func<double, double>? unaryMethod,
+        OperationType type
+    ) : base(priority, type)
+    {
+        Priority = priority;
+        Type = type;
+        Method = unaryMethod;
+    }
+}
+
+class LogicalExpression<T> : Expression
+{
+    public Func<T, T, bool>? Method;
+    
+    public LogicalExpression(int priority, 
+        Func<T, T, bool>? logicalMethod,
+        OperationType type
+    ) : base(priority, type)
+    {
+        Priority = priority;
+        Type = type;
+        Method = logicalMethod;
     }
 }
