@@ -1,11 +1,14 @@
-﻿namespace Intepreter;
+﻿using System.Text;
+
+namespace Intepreter;
 
 class Program
 {
     private static void Main()
     {
         var interpreter = new ExpressionInterpreter();
-        var result = interpreter.Interpret("cos(1/9) + 3 ^ 3 * (5 + 5) / 5");
+        var result = interpreter.Interpret("sin(1 / 9) + 1");
         Console.WriteLine(result);
+        // Console.WriteLine(result);
     }
 }

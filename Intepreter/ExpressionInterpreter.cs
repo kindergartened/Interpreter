@@ -1,130 +1,114 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Intepreter;
 
 class ExpressionInterpreter
 {
-    private readonly IDictionary<string, Expression> _precedenceMap = new Dictionary<string, Expression>
+    private readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
     {
-        {"+", new Expression(1, (a, b) => a + b)},
-        {"-", new Expression(2, (a, b) => a - b)},
-        {"*", new Expression(3, (a, b) => a * b)},
-        {"/", new Expression(4, (a, b) => a / b)},
-        {"^", new Expression(5, (a, b) => Math.Pow(a, b))},
+        {"+", new Expression(1, (a, b) => a + b, null, OperationType.Binary)},
+        {"-", new Expression(1, (a, b) => a - b, null, OperationType.Binary)},
+        {"*", new Expression(2, (a, b) => a * b, null, OperationType.Binary)},
+        {"/", new Expression(2, (a, b) => a / b, null, OperationType.Binary)},
+        {"^", new Expression(3, (a, b) => Math.Pow(a, b), null, OperationType.Binary)},
+        { "sin", new Expression(4, null, Math.Sin, OperationType.Unary) },
+        { "cos", new Expression(4, null, Math.Cos, OperationType.Unary) },
+        { "tan", new Expression(4, null, Math.Tan, OperationType.Unary) },
     };
-    private readonly IDictionary<string, Func<double, double>> _unaryOperations = new Dictionary<string, Func<double, double>>
-    {
-        { "sin", Math.Sin },
-        { "cos", Math.Cos },
-        { "tan", Math.Tan },
-    };
-
+    
     public double Interpret(string expression)
     {
         // Преобразование входного выражения в обратную польскую запись
         var postfixExpression = ConvertToPostfix(expression);
+        Console.WriteLine(postfixExpression);
 
         // Вычисление результата с использованием обратной польской записи
-        var result = EvaluatePostfix(postfixExpression);
+        var result = EvaluatePostfix(expression);
 
         return result;
     }
-
-    private string ConvertToPostfix(string infixExpression)
+    
+    public string ConvertToPostfix(string infixExpression)
     {
-        var operators = new Stack<string>();
-        var output = new Queue<string>();
+        var output = new List<string>();
+        var stack = new Stack<string>();
 
-        var tokens = Regex.Split(infixExpression, @"(\d+\.\d+|\d+|[+\-*/^()]|[a-zA-Z]+)");
-
-        foreach (var token in tokens.Where(t => !string.IsNullOrWhiteSpace(t)))
+        foreach (var token in Regex.Split(infixExpression, @"(\s+|\b)"))
         {
-            if (double.TryParse(token, out var number) || char.IsLetter(token[0]))
+            if (string.IsNullOrWhiteSpace(token))
             {
-                output.Enqueue(token);
+                continue;
+            }
+
+            if (_operations.ContainsKey(token))
+            {
+                while (stack.Count > 0 && _operations.ContainsKey(stack.Peek()) && _operations[stack.Peek()].priority >= _operations[token].priority)
+                {
+                    output.Add(stack.Pop());
+                }
+
+                stack.Push(token);
             }
             else if (token == "(")
             {
-                operators.Push(token);
+                stack.Push(token);
             }
             else if (token == ")")
             {
-                while (operators.Count > 0 && operators.Peek() != "(")
+                string top;
+                while ((top = stack.Pop()) != "(")
                 {
-                    output.Enqueue(operators.Pop());
+                    output.Add(top);
                 }
-                operators.Pop(); // Удаляем открывающую скобку
             }
-            else if (_unaryOperations.ContainsKey(token))
+            else
             {
-                operators.Push(token); // Добавляем унарную операцию в стек
-            }
-            else if (_precedenceMap.ContainsKey(token))
-            {
-                while (operators.Count > 0 && GetPrecedence(operators.Peek()) >= GetPrecedence(token))
-                {
-                    output.Enqueue(operators.Pop());
-                }
-                operators.Push(token);
+                output.Add(token);
             }
         }
 
-        while (operators.Count > 0)
+        while (stack.Count > 0)
         {
-            output.Enqueue(operators.Pop());
+            output.Add(stack.Pop());
         }
 
-        return string.Join(" ", output.ToArray());
+        return string.Join(" ", output);
     }
-
-    private int GetPrecedence(string operatorToken)
-    {
-        return _precedenceMap.TryGetValue(operatorToken, out var value) ? value.priority : 0;
-    }
-
+    
     private double EvaluatePostfix(string postfixExpression)
     {
-        var operands = new Stack<double>();
-        var tokens = postfixExpression.Split(' ');
-
-        Console.WriteLine(postfixExpression);
-        try
+        // Обработка унарных операций (таких как sin, cos и т.д.)
+        foreach (var op in _operations.Where(e => e.Value.type == OperationType.Unary))
         {
-            foreach (var token in tokens)
+            var match = Regex.Match(postfixExpression, $@"\([^)]+\){op.Key}|{op.Key}\((\d+\.\d+?)\){op.Key}");
+            while (match.Success)
             {
-                if (double.TryParse(token, out var number))
-                {
-                    operands.Push(number);
-                }
-                else if (char.IsLetter(token[0]) && token.Length == 1)
-                {
-                    // Обработка переменных, если необходимо
-                    // В данном коде переменные просто игнорируются
-                }
-                else if (_precedenceMap.ContainsKey(token))
-                {
-                    // Бинарные операции
-                    var operand2 = operands.Pop();
-                    var operand1 = operands.Pop();
-                    var result = _precedenceMap[token].method(operand1, operand2);
-                    operands.Push(result);
-                }
-                else if (_unaryOperations.ContainsKey(token))
-                {
-                    // Унарные операции
-                    var operand = operands.Pop();
-                    var result = _unaryOperations[token](operand);
-                    operands.Push(result);
-                }
+                var innerExpression = match.Groups[1].Value;
+                var innerResult = EvaluatePostfix(innerExpression);
+                var result = _operations[op.Key];
+                postfixExpression = postfixExpression.Replace($"{op.Key}({innerExpression})", result.unaryMethod(innerResult).ToString());
+                match = Regex.Match(postfixExpression, $@"\([^)]+\){op.Key}|\((\d+\.\d+?)\){op.Key}");
             }
         }
-        catch (InvalidOperationException)
-        {
-            // Обработка случая, когда стек оказывается пустым
-            Console.WriteLine("Ошибка: неверное выражение.");
-            return double.NaN; // или другое значение, которое указывает на ошибку
-        }
 
-        return operands.Pop();
+        // Обработка бинарных операций (таких как +, -, * и т.д.)
+        var tokens = postfixExpression.Split(' ');
+        var stack = new Stack<double>();
+        foreach (var token in tokens)
+        {
+            if (_operations.TryGetValue(token, out var operation))
+            {
+                var rightOperand = stack.Pop();
+                var leftOperand = stack.Pop();
+                var result = operation.method;
+                stack.Push(result(leftOperand, rightOperand));
+            }
+            else
+            {
+                stack.Push(double.Parse(token));
+            }
+        }
+        return stack.Pop();
     }
 }
