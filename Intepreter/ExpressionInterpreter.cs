@@ -12,14 +12,28 @@ public class ExpressionInterpreter
     /// </summary>
     private readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
     {
-        {"+", new Expression(1, (a, b) => a + b, null, OperationType.Binary)},
-        {"-", new Expression(1, (a, b) => a - b, null, OperationType.Binary)},
-        {"*", new Expression(2, (a, b) => a * b, null, OperationType.Binary)},
-        {"/", new Expression(2, (a, b) => a / b, null, OperationType.Binary)},
-        {"^", new Expression(3, Math.Pow, null, OperationType.Binary)},
-        { "sin", new Expression(4, null, Math.Sin, OperationType.Unary) },
-        { "cos", new Expression(4, null, Math.Cos, OperationType.Unary) },
-        { "tan", new Expression(4, null, Math.Tan, OperationType.Unary) },
+        // Binary
+        {"+", new BinaryExpression(1, (a, b) => a + b, OperationType.Binary)},
+        {"-", new BinaryExpression(1, (a, b) => a - b, OperationType.Binary)},
+        {"*", new BinaryExpression(2, (a, b) => a * b, OperationType.Binary)},
+        {"/", new BinaryExpression(2, (a, b) => a / b, OperationType.Binary)},
+        {"**", new BinaryExpression(3, Math.Pow, OperationType.Binary)},
+        
+        // Unary
+        { "sin", new UnaryExpression(4, Math.Sin, OperationType.Unary) },
+        { "cos", new UnaryExpression(4, Math.Cos, OperationType.Unary) },
+        { "tan", new UnaryExpression(4, Math.Tan, OperationType.Unary) },
+        { "cot", new UnaryExpression(4, (a) => 1 / Math.Tan(a), OperationType.Unary) },
+        
+        // Logical
+        { "<", new LogicalExpression<double>(0, (a, b) => a < b, OperationType.LogicalDouble) },
+        { "<=", new LogicalExpression<double>(0, (a, b) => a <= b, OperationType.LogicalDouble) },
+        { ">", new LogicalExpression<double>(0, (a, b) => a > b, OperationType.LogicalDouble) },
+        { ">=", new LogicalExpression<double>(0, (a, b) => a >= b, OperationType.LogicalDouble) },
+        { "&&", new LogicalExpression<bool>(0, (a, b) => a && b, OperationType.Logical) },
+        { "||", new LogicalExpression<bool>(0, (a, b) => a || b, OperationType.Logical) },
+        { "&", new LogicalExpression<bool>(0,(a, b) => a & b, OperationType.Logical) },
+        { "|", new LogicalExpression<bool>(0, (a, b) => a | b, OperationType.Logical) },
     };
     
     /// <summary>
@@ -33,6 +47,8 @@ public class ExpressionInterpreter
     {
         // Преобразование входного выражения в обратную польскую запись
         var postfixExpression = ConvertToPostfix(expression);
+
+        Console.WriteLine(postfixExpression);
 
         // Вычисление результата с использованием обратной польской записи
         var result = EvaluatePostfix(postfixExpression);
@@ -49,6 +65,7 @@ public class ExpressionInterpreter
     {
         var output = new List<string>();
         var stack = new Stack<string>();
+        infixExpression = infixExpression.Replace('.', ',');
 
         foreach (var token in Regex.Split(infixExpression, @"(\s+|\b)"))
         {
@@ -89,7 +106,18 @@ public class ExpressionInterpreter
             output.Add(stack.Pop());
         }
 
-        return string.Join(" ", output);
+        var result = output[0];
+        for (var i = 1; i < output.Count; i++)
+        {
+            result += output[i] == "," ? output[i] :
+                output[i - 1] == "," ?
+                    i == output.Count ? output[i] + " " :
+                        output[i] :
+                    i == output.Count ? " " + output[i] + " " :
+                    " " + output[i];
+        }
+
+        return result;
     }
     
     /// <summary>
@@ -113,15 +141,47 @@ public class ExpressionInterpreter
                 // Бинарные операции
                 var operand2 = operands.Pop();
                 var operand1 = operands.Pop();
-                var result = _operations[token].BinaryMethod(operand1, operand2);
-                operands.Push(result);
+                var expression = (BinaryExpression)_operations[token];
+                if (expression.Method != null)
+                {
+                    var result = expression.Method(operand1, operand2);
+                    operands.Push(result);
+                }
             }
             else if (_operations[token].Type == OperationType.Unary)
             {
                 // Унарные операции
                 var operand = operands.Pop();
-                var result = _operations[token].UnaryMethod(operand);
-                operands.Push(result);
+                var expression = (UnaryExpression)_operations[token];
+                if (expression.Method != null)
+                {
+                    var result = expression.Method(operand);
+                    operands.Push(result);
+                }
+            }
+            else if (_operations[token].Type == OperationType.LogicalDouble)
+            {
+                // Логические операции с числами
+                var operand2 = operands.Pop();
+                var operand1 = operands.Pop();
+                var expression = (LogicalExpression<double>)_operations[token];
+                if (expression.Method != null)
+                {
+                    var result = expression.Method(operand1, operand2);
+                    operands.Push(result ? 1 : 0);
+                }
+            }
+            else if (_operations[token].Type == OperationType.Logical)
+            {
+                // Логические операции
+                var operand2 = operands.Pop() != 0.0;
+                var operand1 = operands.Pop() != 0.0;
+                var expression = (LogicalExpression<bool>)_operations[token];
+                if (expression.Method != null)
+                {
+                    var result = expression.Method(operand1, operand2);
+                    operands.Push(result ? 1 : 0);
+                }
             }
         }
 

@@ -3,5 +3,6 @@
 public enum OperationType {
     Binary,
     Logical,
+    LogicalDouble,
     Unary
 }
