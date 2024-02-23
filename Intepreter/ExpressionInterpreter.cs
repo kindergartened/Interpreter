@@ -11,7 +11,7 @@ class ExpressionInterpreter
         {"-", new Expression(1, (a, b) => a - b, null, OperationType.Binary)},
         {"*", new Expression(2, (a, b) => a * b, null, OperationType.Binary)},
         {"/", new Expression(2, (a, b) => a / b, null, OperationType.Binary)},
-        {"^", new Expression(3, (a, b) => Math.Pow(a, b), null, OperationType.Binary)},
+        {"^", new Expression(3, Math.Pow, null, OperationType.Binary)},
         { "sin", new Expression(4, null, Math.Sin, OperationType.Unary) },
         { "cos", new Expression(4, null, Math.Cos, OperationType.Unary) },
         { "tan", new Expression(4, null, Math.Tan, OperationType.Unary) },
