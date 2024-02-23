@@ -1,4 +1,6 @@
-﻿namespace Intepreter;
+﻿using System.Text.RegularExpressions;
+
+namespace Intepreter;
 
 class ExpressionInterpreter
 {
@@ -10,53 +12,54 @@ class ExpressionInterpreter
         {"/", new Expression(4, (a, b) => a / b)},
         {"^", new Expression(5, (a, b) => Math.Pow(a, b))},
     };
-    private Dictionary<string, Func<double, double>> unaryOperations = new Dictionary<string, Func<double, double>>
+    private readonly IDictionary<string, Func<double, double>> _unaryOperations = new Dictionary<string, Func<double, double>>
     {
         { "sin", Math.Sin },
         { "cos", Math.Cos },
         { "tan", Math.Tan },
-        // Добавьте здесь больше операций по мере необходимости...
     };
 
     public double Interpret(string expression)
     {
         // Преобразование входного выражения в обратную польскую запись
-        string postfixExpression = ConvertToPostfix(expression);
+        var postfixExpression = ConvertToPostfix(expression);
 
         // Вычисление результата с использованием обратной польской записи
-        double result = EvaluatePostfix(postfixExpression);
+        var result = EvaluatePostfix(postfixExpression);
 
         return result;
     }
 
     private string ConvertToPostfix(string infixExpression)
     {
-        Stack<char> operators = new Stack<char>();
-        Queue<char> output = new Queue<char>();
+        var operators = new Stack<string>();
+        var output = new Queue<string>();
 
-        foreach (char token in infixExpression)
+        var tokens = Regex.Split(infixExpression, @"(\d+\.\d+|\d+|[+\-*/^()]|[a-zA-Z]+)");
+
+        foreach (var token in tokens.Where(t => !string.IsNullOrWhiteSpace(t)))
         {
-            if (char.IsDigit(token) || char.IsLetter(token))
+            if (double.TryParse(token, out var number) || char.IsLetter(token[0]))
             {
                 output.Enqueue(token);
             }
-            else if (token == '(')
+            else if (token == "(")
             {
                 operators.Push(token);
             }
-            else if (token == ')')
+            else if (token == ")")
             {
-                while (operators.Count > 0 && operators.Peek() != '(')
+                while (operators.Count > 0 && operators.Peek() != "(")
                 {
                     output.Enqueue(operators.Pop());
                 }
                 operators.Pop(); // Удаляем открывающую скобку
             }
-            else if (unaryOperations.ContainsKey(token.ToString()))
+            else if (_unaryOperations.ContainsKey(token))
             {
-                output.Enqueue(token); // Добавляем унарную операцию в вывод
+                operators.Push(token); // Добавляем унарную операцию в стек
             }
-            else if (_precedenceMap.ContainsKey(token.ToString()))
+            else if (_precedenceMap.ContainsKey(token))
             {
                 while (operators.Count > 0 && GetPrecedence(operators.Peek()) >= GetPrecedence(token))
                 {
@@ -71,45 +74,55 @@ class ExpressionInterpreter
             output.Enqueue(operators.Pop());
         }
 
-        return new string(output.ToArray());
+        return string.Join(" ", output.ToArray());
     }
 
-    private int GetPrecedence(char operatorToken)
+    private int GetPrecedence(string operatorToken)
     {
-        string operatorStr = operatorToken.ToString();
-        return _precedenceMap.TryGetValue(operatorStr, out var value) ? value.priority : 0;
+        return _precedenceMap.TryGetValue(operatorToken, out var value) ? value.priority : 0;
     }
 
     private double EvaluatePostfix(string postfixExpression)
     {
-        Stack<double> operands = new Stack<double>();
+        var operands = new Stack<double>();
+        var tokens = postfixExpression.Split(' ');
 
-        foreach (char token in postfixExpression)
+        Console.WriteLine(postfixExpression);
+        try
         {
-            if (char.IsDigit(token))
+            foreach (var token in tokens)
             {
-                operands.Push(double.Parse(token.ToString()));
+                if (double.TryParse(token, out var number))
+                {
+                    operands.Push(number);
+                }
+                else if (char.IsLetter(token[0]) && token.Length == 1)
+                {
+                    // Обработка переменных, если необходимо
+                    // В данном коде переменные просто игнорируются
+                }
+                else if (_precedenceMap.ContainsKey(token))
+                {
+                    // Бинарные операции
+                    var operand2 = operands.Pop();
+                    var operand1 = operands.Pop();
+                    var result = _precedenceMap[token].method(operand1, operand2);
+                    operands.Push(result);
+                }
+                else if (_unaryOperations.ContainsKey(token))
+                {
+                    // Унарные операции
+                    var operand = operands.Pop();
+                    var result = _unaryOperations[token](operand);
+                    operands.Push(result);
+                }
             }
-            else if (char.IsLetter(token))
-            {
-                // Обработка переменных, если необходимо
-                // В данном коде переменные просто игнорируются
-            }
-            else if (_precedenceMap.ContainsKey(token.ToString()))
-            {
-                // Бинарные операции
-                double operand2 = operands.Pop();
-                double operand1 = operands.Pop();
-                double result = _precedenceMap[token.ToString()].method(operand1, operand2);
-                operands.Push(result);
-            }
-            else if (unaryOperations.ContainsKey(token.ToString()))
-            {
-                // Унарные операции
-                double operand = operands.Pop();
-                double result = unaryOperations[token.ToString()](operand);
-                operands.Push(result);
-            }
+        }
+        catch (InvalidOperationException)
+        {
+            // Обработка случая, когда стек оказывается пустым
+            Console.WriteLine("Ошибка: неверное выражение.");
+            return double.NaN; // или другое значение, которое указывает на ошибку
         }
 
         return operands.Pop();
