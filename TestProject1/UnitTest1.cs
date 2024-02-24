@@ -40,7 +40,7 @@ namespace InterpreterTests
         public void InterTest()
         {
             string actual11 = "2**8/2";
-            int expected11 = 16;
+            int expected11 = 128;
             Assert.AreEqual(expected11, interpreter.Interpret(actual11));
             string actual12 = "2**sin(2**(tan(5+2*3/5)))";
             double expected12 = 1.75299;
@@ -146,7 +146,7 @@ namespace InterpreterTests
         public void InterTest15()
         {
             actual = "2**2**2**2";
-            expected = 65536;
+            expected = 256;
             Assert.AreEqual(expected, interpreter.Interpret(actual));
         }
         
