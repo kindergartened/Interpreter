@@ -5,9 +5,9 @@ namespace Intepreter;
 public class ExpressionInterpreter
 {
     /// <summary>
-    /// Словарь со всеми методами и их приоритетами
+    /// Словарь со всеми операциями и их приоритетами
     ///     Ключ - строка метода.
-    ///     Значение - класс Expression.
+    ///     Значение - объект, наследник класса Expression.
     /// </summary>
     private readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
     {
@@ -30,14 +30,15 @@ public class ExpressionInterpreter
         { "log", new UnaryExpression(4, Math.Log, OperationType.Unary) },
         
         // Logical
-        { "<", new LogicalExpression<double>(0, (a, b) => a < b, OperationType.LogicalDouble) },
-        { "<=", new LogicalExpression<double>(0, (a, b) => a <= b, OperationType.LogicalDouble) },
-        { ">", new LogicalExpression<double>(0, (a, b) => a > b, OperationType.LogicalDouble) },
-        { ">=", new LogicalExpression<double>(0, (a, b) => a >= b, OperationType.LogicalDouble) },
-        { "&&", new LogicalExpression<bool>(0, (a, b) => a && b, OperationType.Logical) },
-        { "||", new LogicalExpression<bool>(0, (a, b) => a || b, OperationType.Logical) },
-        { "&", new LogicalExpression<bool>(0,(a, b) => a & b, OperationType.Logical) },
-        { "|", new LogicalExpression<bool>(0, (a, b) => a | b, OperationType.Logical) },
+        { "<", new LogicalExpression<double>(-3, (a, b) => a < b, OperationType.LogicalDouble) },
+        { "<=", new LogicalExpression<double>(-4, (a, b) => a <= b, OperationType.LogicalDouble) },
+        { ">", new LogicalExpression<double>(-3, (a, b) => a > b, OperationType.LogicalDouble) },
+        { ">=", new LogicalExpression<double>(-4, (a, b) => a >= b, OperationType.LogicalDouble) },
+        { "&&", new LogicalExpression<bool>(-1, (a, b) => a && b, OperationType.Logical) },
+        { "||", new LogicalExpression<bool>(-2, (a, b) => a || b, OperationType.Logical) },
+        { "&", new LogicalExpression<bool>(-1,(a, b) => a & b, OperationType.Logical) },
+        { "|", new LogicalExpression<bool>(-2, (a, b) => a | b, OperationType.Logical) },
+        { "==", new LogicalExpression<bool>(0, (a, b) => a == b, OperationType.Logical) },
     };
     
     /// <summary>
@@ -49,12 +50,8 @@ public class ExpressionInterpreter
     /// <returns>Значение выражения</returns>
     public double Interpret(string expression)
     {
-        // Преобразование входного выражения в обратную польскую запись
         var postfixExpression = ConvertToPostfix(expression);
 
-        Console.WriteLine(postfixExpression);
-
-        // Вычисление результата с использованием обратной польской записи
         var result = EvaluatePostfix(postfixExpression);
 
         return result;
@@ -202,11 +199,23 @@ public class ExpressionInterpreter
         return tokens;
     }
 
+    /// <summary>
+    /// Построение дерева лексического анализа из постфиксной записи выражения
+    ///     - переводит выражение в постфиксную запись
+    ///     - из переведенного выражения делает дерево 
+    /// </summary>
+    /// <param name="infix">Строка в инфиксной форме</param>
+    /// <returns>Строчное представление дерева</returns>
     public string BuildTree(string infix)
     {
         return BuildExpressionTree(ConvertToPostfix(infix)).ToString();
     }
     
+    /// <summary>
+    /// Построение дерева из постфиксной записи выражения
+    /// </summary>
+    /// <param name="postfixExpression">Строка в постфиксной форме</param>
+    /// <returns>ExpressionNode дерево</returns>
     private ExpressionNode BuildExpressionTree(string postfixExpression)
     {
         var stack = new Stack<ExpressionNode>();

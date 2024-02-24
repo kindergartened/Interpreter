@@ -51,10 +51,10 @@ class UnaryExpression : Expression
 
 class LogicalExpression<T> : Expression
 {
-    public Func<T, T, bool>? Method;
+    public Func<T, T?, bool>? Method;
     
     public LogicalExpression(int priority, 
-        Func<T, T, bool>? logicalMethod,
+        Func<T, T?, bool>? logicalMethod,
         OperationType type
     ) : base(priority, type)
     {
