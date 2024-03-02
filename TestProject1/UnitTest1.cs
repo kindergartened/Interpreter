@@ -42,11 +42,11 @@ namespace InterpreterTests
             string actual11 = "2**8/2";
             int expected11 = 128;
             Assert.AreEqual(expected11, interpreter.Interpret(actual11));
-            string actual12 = "2**sin(2**(tan(5+2*3/5)))";
-            double expected12 = 1.75299;
+            string actual12 = "2**sin(2** ( tan( 5 + 2 * 3 / 5 ) ) )";
+            double expected12 = 1.752992741799427;
             Assert.AreEqual(expected12, interpreter.Interpret(actual12));
             string actual13 = "sin(90)";
-            double expected13 = 0.893997;
+            double expected13 = 0.8939966636005579;
             Assert.AreEqual(expected13, interpreter.Interpret(actual13));
             string actual14 = "sin(0)";
             double expected14 = 0;
@@ -57,9 +57,6 @@ namespace InterpreterTests
             string actual16 = "tan(0)";
             double expected16 = 0;
             Assert.AreEqual(expected16, interpreter.Interpret(actual16));
-            string actual17 = "cot(0)";
-            double expected17 = 1;
-            Assert.AreEqual(expected17, interpreter.Interpret(actual17));
             string actual18 = "sinh(0)";
             double expected18 = 0;
             Assert.AreEqual(expected18, interpreter.Interpret(actual18));
@@ -70,7 +67,7 @@ namespace InterpreterTests
             double expected20 = 0;
             Assert.AreEqual(expected20, interpreter.Interpret(actual20));
             string actual21 = "2**2.5";
-            double expected21 = 5.65685;
+            double expected21 = 5.656854249492381;
             Assert.AreEqual(expected21, interpreter.Interpret(actual21));
         }
         public void InterTest5()

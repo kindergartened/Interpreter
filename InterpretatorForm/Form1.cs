@@ -59,6 +59,9 @@ public partial class Form1 : Form
         button1.Enabled = enabled; button1.BackColor = ColorTranslator.FromHtml(color);
         button3.Enabled = enabled; button3.BackColor = ColorTranslator.FromHtml(color);
         button4.Enabled = enabled; button4.BackColor = ColorTranslator.FromHtml(color);
+        button5.Enabled = enabled; button5.BackColor = ColorTranslator.FromHtml(color);
+        button6.Enabled = enabled; button6.BackColor = ColorTranslator.FromHtml(color);
+        button7.Enabled = enabled; button7.BackColor = ColorTranslator.FromHtml(color);
     }
 
     private static void Error(string text)
@@ -69,5 +72,10 @@ public partial class Form1 : Form
             MessageBoxButtons.OK,
             MessageBoxIcon.Error,
             MessageBoxDefaultButton.Button1);
+    }
+
+    private void button5_Click(object sender, EventArgs e)
+    {
+
     }
 }
