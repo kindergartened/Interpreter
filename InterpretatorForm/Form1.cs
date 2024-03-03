@@ -6,7 +6,8 @@ namespace InterpretatorForm;
 public partial class Form1 : Form
 {
     private string _expresion = "";
-    private readonly ExpressionInterpreter _expressionInterpreter = new();
+    private Regex _variablePattern = new(@"(?<!\w)[a-zA-Z](?!\w)");
+    private VariablesExpressionInterpreter _expressionInterpreter = new(new Dictionary<string, double>());
     public Form1()
     {
         InitializeComponent();
@@ -41,6 +42,7 @@ public partial class Form1 : Form
 
     private void button3_Click(object sender, EventArgs e)
     {
+        CheckHaveVariables();
         List<Token> list = _expressionInterpreter.Tokenize(_expresion);
         string result = "";
         for (int i = 0; i < list.Count; i++)
@@ -83,11 +85,22 @@ public partial class Form1 : Form
 
     private void button8_Click(object sender, EventArgs e)
     {
-        bool containVariables = Regex.IsMatch(richTextBox1.Text, @"(?<!\w)[a-zA-Z](?!\w)");
+        CheckHaveVariables();
+        richTextBox3.Text = _expressionInterpreter.Interpret(_expresion).ToString();
+    }
+
+    private void CheckHaveVariables()
+    {
+        var containVariables = _variablePattern.IsMatch(richTextBox1.Text);
         if (containVariables)
         {
-            //Тут надо потом короче доделать
+            var dict = new Dictionary<string, double>();
+            foreach (Match variable in _variablePattern.Matches(richTextBox1.Text))
+            {
+                dict[variable.Value] = 1; // Vlad rabotai
+            }
+
+            _expressionInterpreter = new VariablesExpressionInterpreter(dict);
         }
-        else richTextBox3.Text = _expressionInterpreter.Interpret(_expresion).ToString();
     }
 }

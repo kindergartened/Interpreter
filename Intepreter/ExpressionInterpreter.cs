@@ -48,7 +48,7 @@ public class ExpressionInterpreter
     /// </summary>
     /// <param name="expression">Строчка инфиксной записи</param>
     /// <returns>Значение выражения</returns>
-    public double Interpret(string expression)
+    public virtual double Interpret(string expression)
     {
         var postfixExpression = ConvertToPostfix(expression);
 
@@ -171,7 +171,7 @@ public class ExpressionInterpreter
     /// </summary>
     /// <param name="expression">Строка в инфиксной форме</param>
     /// <returns>Список токенов</returns>
-    public List<Token> Tokenize(string expression)
+    public virtual List<Token> Tokenize(string expression)
     {
         var tokens = new List<Token>();
         expression = ConvertToPostfix(expression);
