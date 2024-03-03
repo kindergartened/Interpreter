@@ -8,5 +8,6 @@ public enum TokenType
     RightParenthesis,
     UnaryFunction,
     LogicalFunction,
+    Variable,
     Unknown
 }
