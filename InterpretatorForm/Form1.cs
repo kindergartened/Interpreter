@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace InterpretatorForm;
 
@@ -14,12 +15,14 @@ public partial class Form1 : Form
     private ExpressionInterpreter _expressionInterpreter = new();
     private Dictionary<string, double> dictionary = new();
     private bool containVariables = false;
+
     public Form1()
     {
         InitializeComponent();
         ButtonsOptions(false, "#4682b4");
         _expressionInterpreter = new();
-        string pattern = $@"\b(?<!\w)(?!(?:{string.Join("|", _expressionInterpreter.Operations.Select(x => {
+        string pattern = $@"\b(?<!\w)(?!(?:{string.Join("|", _expressionInterpreter.Operations.Select(x =>
+        {
             if (x.Value.Type == OperationType.Unary) return x.Key;
             return null;
         }))})(?!\w))[a-zA-Z]+\b";
@@ -53,7 +56,7 @@ public partial class Form1 : Form
         richTextBox2.Text = _variablesExpressionInterpreter.ConvertToPostfix(_expresion);
     }
 
-    private void button3_Click(object sender, EventArgs e) 
+    private void button3_Click(object sender, EventArgs e)
     {
         List<Token> list = _variablesExpressionInterpreter.Tokenize(_expresion);
         string result = "";
@@ -123,5 +126,20 @@ public partial class Form1 : Form
             MessageBoxButtons.OK,
             MessageBoxIcon.Error,
             MessageBoxDefaultButton.Button1);
+    }
+
+    private void button9_Click(object sender, EventArgs e)
+    {
+        if (dictionary.Count==0)
+        {
+            Error("Выражение не сохранено или не имеет переменных");
+        }
+        else
+        {
+            MessageBox.Show(
+            String.Join("\n", _variablesExpressionInterpreter.Variables),
+            "Список переменных",
+            MessageBoxButtons.OK);
+        }
     }
 }

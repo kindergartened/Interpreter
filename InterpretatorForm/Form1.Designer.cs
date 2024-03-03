@@ -42,6 +42,7 @@
             richTextBox3 = new RichTextBox();
             label3 = new Label();
             button8 = new Button();
+            button9 = new Button();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -231,12 +232,26 @@
             button8.UseVisualStyleBackColor = false;
             button8.Click += button8_Click;
             // 
+            // button9
+            // 
+            button9.BackColor = Color.Gainsboro;
+            button9.FlatStyle = FlatStyle.System;
+            button9.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point);
+            button9.Location = new Point(578, 152);
+            button9.Name = "button9";
+            button9.Size = new Size(37, 31);
+            button9.TabIndex = 12;
+            button9.Text = "(x)";
+            button9.UseVisualStyleBackColor = false;
+            button9.Click += button9_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(800, 494);
+            Controls.Add(button9);
             Controls.Add(button8);
             Controls.Add(label3);
             Controls.Add(richTextBox3);
@@ -270,5 +285,6 @@
         private Button button5;
         private Button button7;
         private Button button8;
+        private Button button9;
     }
 }

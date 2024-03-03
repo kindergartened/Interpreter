@@ -32,6 +32,7 @@
             button1 = new Button();
             label1 = new Label();
             variablesTextBox = new RichTextBox();
+            button2 = new Button();
             toolTip1 = new ToolTip(components);
             SuspendLayout();
             // 
@@ -63,9 +64,22 @@
             // 
             variablesTextBox.Location = new Point(12, 52);
             variablesTextBox.Name = "variablesTextBox";
-            variablesTextBox.Size = new Size(379, 45);
+            variablesTextBox.Size = new Size(326, 45);
             variablesTextBox.TabIndex = 2;
             variablesTextBox.Text = "";
+            // 
+            // button2
+            // 
+            button2.BackColor = Color.Khaki;
+            button2.Cursor = Cursors.Help;
+            button2.FlatStyle = FlatStyle.Popup;
+            button2.Font = new Font("Segoe UI Black", 21.75F, FontStyle.Bold, GraphicsUnit.Point);
+            button2.Location = new Point(344, 52);
+            button2.Name = "button2";
+            button2.Size = new Size(47, 45);
+            button2.TabIndex = 3;
+            button2.Text = "?";
+            button2.UseVisualStyleBackColor = false;
             // 
             // Form2
             // 
@@ -74,6 +88,7 @@
             BackColor = Color.White;
             ClientSize = new Size(403, 184);
             ControlBox = false;
+            Controls.Add(button2);
             Controls.Add(variablesTextBox);
             Controls.Add(label1);
             Controls.Add(button1);
@@ -90,6 +105,7 @@
         private Button button1;
         private Label label1;
         private RichTextBox variablesTextBox;
+        private Button button2;
         private ToolTip toolTip1;
     }
 }

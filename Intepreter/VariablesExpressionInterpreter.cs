@@ -3,7 +3,7 @@
 public class VariablesExpressionInterpreter : ExpressionInterpreter
 {
     private IDictionary<string,double> _variables;
-
+    public IDictionary<string, double> Variables =>  _variables;
 
     public VariablesExpressionInterpreter(IDictionary<string, double> variables)
     {

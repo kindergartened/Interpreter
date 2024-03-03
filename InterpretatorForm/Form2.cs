@@ -12,7 +12,7 @@ namespace InterpretatorForm
         {
             InitializeComponent();
             dictionary = new Dictionary<string, double>(dict);
-            toolTip1.SetToolTip(variablesTextBox, "Введите значения переменных\r\nв том порядке, в котором они\r\nвведены в выражении.\r\nПодсказка: " 
+            toolTip1.SetToolTip(button2, "Введите значения переменных\r\nв том порядке, в котором они\r\nвведены в выражении.\r\nПодсказка: " 
                 + String.Join(", ", dictionary.Select(w => w.Key))+".");
         }
 
