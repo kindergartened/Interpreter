@@ -9,16 +9,21 @@ namespace InterpretatorForm;
 public partial class Form1 : Form
 {
     private string _expresion = "";
-    private Regex _variablePattern = new(@"(?<!\w)[a-zA-Z](?!\w)");
+    private Regex _variablePattern;
     private VariablesExpressionInterpreter _variablesExpressionInterpreter = new(new Dictionary<string, double>());
     private ExpressionInterpreter _expressionInterpreter = new();
-    private static Dictionary<string, double> dictionary = new();
-    private Dictionary<string, double> dict = dictionary;
+    private Dictionary<string, double> dictionary = new();
     private bool containVariables = false;
     public Form1()
     {
         InitializeComponent();
         ButtonsOptions(false, "#4682b4");
+        _expressionInterpreter = new();
+        string pattern = $@"\b(?<!\w)(?!(?:{string.Join("|", _expressionInterpreter.Operations.Select(x => {
+            if (x.Value.Type == OperationType.Unary) return x.Key;
+            return null;
+        }))})(?!\w))[a-zA-Z]+\b";
+        _variablePattern = new Regex(pattern);
     }
 
     private void button2_Click(object sender, EventArgs e) //save
@@ -73,38 +78,29 @@ public partial class Form1 : Form
     {
         if (containVariables)
         {
-            Form2 f2 = new(ref dict);
-            f2.Show();
-
-            while (f2.Visible)
-                Application.DoEvents();
-
-            f2.ReturnDictionary += Form2_ReturnArray;
-
-            MessageBox.Show(String.Join(" ", dictionary));
-
-            _variablesExpressionInterpreter = new VariablesExpressionInterpreter(dictionary);
-
-            richTextBox3.Text = _variablesExpressionInterpreter.Interpret(_expresion).ToString();
+            Form2 f2 = new(ref dictionary);
+            var res = f2.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                _variablesExpressionInterpreter = new VariablesExpressionInterpreter(f2.ReturnDictionary);
+                richTextBox3.Text = _variablesExpressionInterpreter.Interpret(_expresion).ToString();
+            }
         }
         else richTextBox3.Text = _expressionInterpreter.Interpret(_expresion).ToString();
     }
 
-    private void Form2_ReturnArray(object sender, Dictionary<string, double> dict)
-    {
-        dictionary = dict;
-    }
-
     private void CheckHaveVariables(bool containVariables)
     {
+        dictionary = new Dictionary<string, double>();
         if (containVariables)
         {
             foreach (Match variable in _variablePattern.Matches(richTextBox1.Text))
             {
-                dict.Add(variable.ToString(), double.NaN);
+                if (dictionary.TryGetValue(variable.Value, out _)) continue;
+                dictionary.Add(variable.ToString(), double.NaN);
             }
 
-            _variablesExpressionInterpreter = new VariablesExpressionInterpreter(dict);
+            _variablesExpressionInterpreter = new VariablesExpressionInterpreter(dictionary);
         }
     }
 

@@ -9,7 +9,7 @@ public class ExpressionInterpreter
     ///     Ключ - строка метода.
     ///     Значение - объект, наследник класса Expression.
     /// </summary>
-    internal readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
+    public readonly IDictionary<string, Expression> Operations = new Dictionary<string, Expression>
     {
         // Binary
         {"+", new BinaryExpression(1, (a, b) => a + b, OperationType.Binary)},
@@ -73,9 +73,9 @@ public class ExpressionInterpreter
             if (string.IsNullOrWhiteSpace(token))
                 continue;
 
-            if (_operations.TryGetValue(token, out var operation))
+            if (Operations.TryGetValue(token, out var operation))
             {
-                while (stack.Count > 0 && _operations.ContainsKey(stack.Peek()) && _operations[stack.Peek()].Priority >= operation.Priority)
+                while (stack.Count > 0 && Operations.ContainsKey(stack.Peek()) && Operations[stack.Peek()].Priority >= operation.Priority)
                     output.Add(stack.Pop());
 
                 stack.Push(token);
@@ -123,41 +123,41 @@ public class ExpressionInterpreter
         {
             if (double.TryParse(token, out var number))
                 operands.Push(number);
-            else if (_operations[token].Type == OperationType.Binary)
+            else if (Operations[token].Type == OperationType.Binary)
             {
                 // Бинарные операции
                 var operand2 = operands.Pop();
                 var operand1 = operands.Pop();
-                var expression = (BinaryExpression)_operations[token];
+                var expression = (BinaryExpression)Operations[token];
                 if (expression.Method != null)
                 {
                     var result = expression.Method(operand1, operand2);
                     operands.Push(result);
                 }
             }
-            else if (_operations[token].Type == OperationType.Unary)
+            else if (Operations[token].Type == OperationType.Unary)
             {
                 // Унарные операции
                 var operand = operands.Pop();
-                var expression = (UnaryExpression)_operations[token];
+                var expression = (UnaryExpression)Operations[token];
                 if (expression.Method != null)
                     operands.Push(expression.Method(operand));
             }
-            else if (_operations[token].Type == OperationType.LogicalDouble)
+            else if (Operations[token].Type == OperationType.LogicalDouble)
             {
                 // Логические операции с числами
                 var operand2 = operands.Pop();
                 var operand1 = operands.Pop();
-                var expression = (LogicalExpression<double>)_operations[token];
+                var expression = (LogicalExpression<double>)Operations[token];
                 if (expression.Method != null)
                     operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
             }
-            else if (_operations[token].Type == OperationType.Logical)
+            else if (Operations[token].Type == OperationType.Logical)
             {
                 // Логические операции
                 var operand2 = operands.Pop() != 0.0;
                 var operand1 = operands.Pop() != 0.0;
-                var expression = (LogicalExpression<bool>)_operations[token];
+                var expression = (LogicalExpression<bool>)Operations[token];
                 if (expression.Method != null)
                     operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
             }
@@ -186,11 +186,11 @@ public class ExpressionInterpreter
                 tokens.Add(new Token(token, TokenType.RightParenthesis));
             else if (double.TryParse(token, out _))
                 tokens.Add(new Token(token, TokenType.Number));
-            else if (_operations[token].Type == OperationType.Binary)
+            else if (Operations[token].Type == OperationType.Binary)
                 tokens.Add(new Token(token, TokenType.Operator));
-            else if (_operations[token].Type == OperationType.Unary)
+            else if (Operations[token].Type == OperationType.Unary)
                 tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
-            else if (_operations[token].Type == OperationType.Logical || _operations[token].Type == OperationType.LogicalDouble)
+            else if (Operations[token].Type == OperationType.Logical || Operations[token].Type == OperationType.LogicalDouble)
                 tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
             else
                 tokens.Add(new Token(token, TokenType.Unknown));
@@ -222,7 +222,7 @@ public class ExpressionInterpreter
 
         foreach (var token in postfixExpression.Split(' '))
         {
-            if (_operations.ContainsKey(token))
+            if (Operations.ContainsKey(token))
             {
                 var operationNode = new ExpressionNode(token);
                 operationNode.Right = stack.Pop();

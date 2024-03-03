@@ -46,12 +46,12 @@ public class VariablesExpressionInterpreter : ExpressionInterpreter
                 tokens.Add(new Token(token, TokenType.Number));
             else if (_variables.TryGetValue(token, out _))
                 tokens.Add(new Token(token, TokenType.Variable));                
-            else if (_operations[token].Type == OperationType.Binary)
+            else if (Operations[token].Type == OperationType.Binary)
                 tokens.Add(new Token(token, TokenType.Operator));
-            else if (_operations[token].Type == OperationType.Unary)
+            else if (Operations[token].Type == OperationType.Unary)
                 tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
-            else if (_operations[token].Type == OperationType.Logical ||
-                     _operations[token].Type == OperationType.LogicalDouble)
+            else if (Operations[token].Type == OperationType.Logical ||
+                     Operations[token].Type == OperationType.LogicalDouble)
                 tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
             else
                 tokens.Add(new Token(token, TokenType.Unknown));

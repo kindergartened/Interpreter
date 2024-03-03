@@ -5,7 +5,7 @@
 ///     - Приоритет
 ///     - Тип выражения
 /// </summary>
-abstract class Expression
+public abstract class Expression
 {
     public int Priority;
     public OperationType Type;

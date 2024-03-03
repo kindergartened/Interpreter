@@ -5,7 +5,7 @@ namespace InterpretatorForm
 {
     public partial class Form2 : Form
     {
-        public event EventHandler<Dictionary<string, double>> ReturnDictionary;
+        public Dictionary<string, double> ReturnDictionary;
         private Dictionary<string, double> dictionary;
 
         public Form2(ref Dictionary<string, double> dict)
@@ -27,9 +27,9 @@ namespace InterpretatorForm
                 index++;
             }
 
-            ReturnDictionary?.Invoke(this, dictionary);
-
-            this.Close();
+            ReturnDictionary = dictionary;
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void Form2_Load(object sender, EventArgs e)
