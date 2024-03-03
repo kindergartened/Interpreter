@@ -247,6 +247,7 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Interpretator";
             groupBox1.ResumeLayout(false);
             ResumeLayout(false);
