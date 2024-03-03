@@ -9,7 +9,7 @@ public class ExpressionInterpreter
     ///     Ключ - строка метода.
     ///     Значение - объект, наследник класса Expression.
     /// </summary>
-    private readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
+    internal readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
     {
         // Binary
         {"+", new BinaryExpression(1, (a, b) => a + b, OperationType.Binary)},

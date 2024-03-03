@@ -1,4 +1,5 @@
 using Intepreter;
+using System.Text.RegularExpressions;
 
 namespace InterpretatorForm;
 
@@ -23,7 +24,7 @@ public partial class Form1 : Form
             else
             {
                 _expresion = richTextBox1.Text;
-                richTextBox3.Text = _expressionInterpreter.Interpret(_expresion).ToString();
+
                 ButtonsOptions(true, "#0066CC");
             }
         }
@@ -62,6 +63,7 @@ public partial class Form1 : Form
         button5.Enabled = enabled; button5.BackColor = ColorTranslator.FromHtml(color);
         button6.Enabled = enabled; button6.BackColor = ColorTranslator.FromHtml(color);
         button7.Enabled = enabled; button7.BackColor = ColorTranslator.FromHtml(color);
+        button8.Enabled = enabled; button8.BackColor = ColorTranslator.FromHtml(color);
     }
 
     private static void Error(string text)
@@ -77,5 +79,15 @@ public partial class Form1 : Form
     private void button5_Click(object sender, EventArgs e)
     {
 
+    }
+
+    private void button8_Click(object sender, EventArgs e)
+    {
+        bool containVariables = Regex.IsMatch(richTextBox1.Text, @"(?<!\w)[a-zA-Z](?!\w)");
+        if (containVariables)
+        {
+            //Тут надо потом короче доделать
+        }
+        else richTextBox3.Text = _expressionInterpreter.Interpret(_expresion).ToString();
     }
 }

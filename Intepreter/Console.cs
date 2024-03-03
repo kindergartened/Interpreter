@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Intepreter;
 
@@ -14,6 +15,8 @@ class Program
         // {
         //     Console.WriteLine($"{result[i].Type}: {result[i].Value}");
         // }
+
+
         Console.WriteLine(result);
     }
 }

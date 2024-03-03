@@ -41,6 +41,7 @@
             label2 = new Label();
             richTextBox3 = new RichTextBox();
             label3 = new Label();
+            button8 = new Button();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -50,7 +51,7 @@
             richTextBox1.Font = new Font("Segoe UI Semibold", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
             richTextBox1.Location = new Point(52, 47);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(558, 50);
+            richTextBox1.Size = new Size(572, 50);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
             // 
@@ -86,11 +87,11 @@
             button2.FlatStyle = FlatStyle.Flat;
             button2.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point);
             button2.ForeColor = Color.White;
-            button2.Location = new Point(638, 47);
+            button2.Location = new Point(649, 47);
             button2.Name = "button2";
-            button2.Size = new Size(132, 60);
+            button2.Size = new Size(139, 59);
             button2.TabIndex = 4;
-            button2.Text = "Сохранить и вычислить";
+            button2.Text = "Сохранить";
             button2.UseVisualStyleBackColor = false;
             button2.Click += button2_Click;
             // 
@@ -201,7 +202,7 @@
             richTextBox3.Location = new Point(52, 142);
             richTextBox3.Name = "richTextBox3";
             richTextBox3.ReadOnly = true;
-            richTextBox3.Size = new Size(558, 50);
+            richTextBox3.Size = new Size(572, 50);
             richTextBox3.TabIndex = 9;
             richTextBox3.Text = "";
             // 
@@ -215,12 +216,28 @@
             label3.TabIndex = 10;
             label3.Text = "Выражение";
             // 
+            // button8
+            // 
+            button8.BackColor = SystemColors.HotTrack;
+            button8.Cursor = Cursors.Hand;
+            button8.FlatStyle = FlatStyle.Flat;
+            button8.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point);
+            button8.ForeColor = Color.White;
+            button8.Location = new Point(647, 132);
+            button8.Name = "button8";
+            button8.Size = new Size(139, 60);
+            button8.TabIndex = 11;
+            button8.Text = "Вычислить";
+            button8.UseVisualStyleBackColor = false;
+            button8.Click += button8_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(800, 494);
+            Controls.Add(button8);
             Controls.Add(label3);
             Controls.Add(richTextBox3);
             Controls.Add(label2);
@@ -251,5 +268,6 @@
         private Button button6;
         private Button button5;
         private Button button7;
+        private Button button8;
     }
 }
