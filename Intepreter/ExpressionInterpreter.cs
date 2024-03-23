@@ -5,19 +5,19 @@ namespace Intepreter;
 public class ExpressionInterpreter
 {
     /// <summary>
-    /// Словарь со всеми методами и их приоритетами
+    /// Словарь со всеми операциями и их приоритетами
     ///     Ключ - строка метода.
-    ///     Значение - класс Expression.
+    ///     Значение - объект, наследник класса Expression.
     /// </summary>
-    private readonly IDictionary<string, Expression> _operations = new Dictionary<string, Expression>
+    public readonly IDictionary<string, Expression> Operations = new Dictionary<string, Expression>
     {
         // Binary
-        {"+", new BinaryExpression(1, (a, b) => a + b, OperationType.Binary)},
-        {"-", new BinaryExpression(1, (a, b) => a - b, OperationType.Binary)},
-        {"*", new BinaryExpression(2, (a, b) => a * b, OperationType.Binary)},
-        {"/", new BinaryExpression(2, (a, b) => a / b, OperationType.Binary)},
-        {"**", new BinaryExpression(3, Math.Pow, OperationType.Binary)},
-        
+        { "+", new BinaryExpression(1, (a, b) => a + b, OperationType.Binary) },
+        { "-", new BinaryExpression(1, (a, b) => a - b, OperationType.Binary) },
+        { "*", new BinaryExpression(2, (a, b) => a * b, OperationType.Binary) },
+        { "/", new BinaryExpression(2, (a, b) => a / b, OperationType.Binary) },
+        { "**", new BinaryExpression(3, Math.Pow, OperationType.Binary) },
+
         // Unary
         { "sin", new UnaryExpression(4, Math.Sin, OperationType.Unary) },
         { "cos", new UnaryExpression(4, Math.Cos, OperationType.Unary) },
@@ -28,18 +28,25 @@ public class ExpressionInterpreter
         { "tanh", new UnaryExpression(4, Math.Tanh, OperationType.Unary) },
         { "e", new UnaryExpression(4, Math.Exp, OperationType.Unary) },
         { "log", new UnaryExpression(4, Math.Log, OperationType.Unary) },
-        
-        // Logical
-        { "<", new LogicalExpression<double>(0, (a, b) => a < b, OperationType.LogicalDouble) },
-        { "<=", new LogicalExpression<double>(0, (a, b) => a <= b, OperationType.LogicalDouble) },
-        { ">", new LogicalExpression<double>(0, (a, b) => a > b, OperationType.LogicalDouble) },
-        { ">=", new LogicalExpression<double>(0, (a, b) => a >= b, OperationType.LogicalDouble) },
-        { "&&", new LogicalExpression<bool>(0, (a, b) => a && b, OperationType.Logical) },
-        { "||", new LogicalExpression<bool>(0, (a, b) => a || b, OperationType.Logical) },
-        { "&", new LogicalExpression<bool>(0,(a, b) => a & b, OperationType.Logical) },
-        { "|", new LogicalExpression<bool>(0, (a, b) => a | b, OperationType.Logical) },
+
+        // Logical 
+        { "<", new LogicalExpression<double>(-5, (a, b) => a < b, OperationType.LogicalDouble) },
+        { "<=", new LogicalExpression<double>(-6, (a, b) => a <= b, OperationType.LogicalDouble) },
+        { ">", new LogicalExpression<double>(-5, (a, b) => a > b, OperationType.LogicalDouble) },
+        { ">=", new LogicalExpression<double>(-6, (a, b) => a >= b, OperationType.LogicalDouble) },
+        { "&&", new LogicalExpression<bool>(-3, (a, b) => a && b, OperationType.Logical) },
+        { "||", new LogicalExpression<bool>(-4, (a, b) => a || b, OperationType.Logical) },
+        { "&", new LogicalExpression<bool>(-3, (a, b) => a & b, OperationType.Logical) },
+        { "|", new LogicalExpression<bool>(-4, (a, b) => a | b, OperationType.Logical) },
+        { "==", new LogicalExpression<bool>(-2, (a, b) => a == b, OperationType.Logical) },
+        { "!=", new LogicalExpression<bool>(-2, (a, b) => a != b, OperationType.Logical) },
+        { "->", new LogicalExpression<bool>(-3, (a, b) => !a | b, OperationType.Logical) },
+        { "^", new LogicalExpression<bool>(-3, (a, b) => a ^ b, OperationType.Logical) },
+        { "!", new OtherLogicalExpression(0, (a) => !a, OperationType.OtherLogical) },
+        { "↓", new LogicalExpression<bool>(-1, (a, b) => !(a | b), OperationType.Logical) }, //Стрелка Пирса
+        { "↑", new LogicalExpression<bool>(-1, (a, b) => !(a & b), OperationType.Logical) }, //Штрих Шеффера    
     };
-    
+
     /// <summary>
     /// Общий метод вычисления из инфиксной записи.
     ///     - Переводит в обратную польскую запись.
@@ -47,19 +54,15 @@ public class ExpressionInterpreter
     /// </summary>
     /// <param name="expression">Строчка инфиксной записи</param>
     /// <returns>Значение выражения</returns>
-    public double Interpret(string expression)
+    public virtual double Interpret(string expression)
     {
-        // Преобразование входного выражения в обратную польскую запись
         var postfixExpression = ConvertToPostfix(expression);
 
-        Console.WriteLine(postfixExpression);
-
-        // Вычисление результата с использованием обратной польской записи
         var result = EvaluatePostfix(postfixExpression);
 
         return result;
     }
-    
+
     /// <summary>
     /// Переводит входную строку в обратную польскую запись
     /// </summary>
@@ -76,9 +79,10 @@ public class ExpressionInterpreter
             if (string.IsNullOrWhiteSpace(token))
                 continue;
 
-            if (_operations.TryGetValue(token, out var operation))
+            if (Operations.TryGetValue(token, out var operation))
             {
-                while (stack.Count > 0 && _operations.ContainsKey(stack.Peek()) && _operations[stack.Peek()].Priority >= operation.Priority)
+                while (stack.Count > 0 && Operations.ContainsKey(stack.Peek()) &&
+                       Operations[stack.Peek()].Priority >= operation.Priority)
                     output.Add(stack.Pop());
 
                 stack.Push(token);
@@ -126,94 +130,116 @@ public class ExpressionInterpreter
         {
             if (double.TryParse(token, out var number))
                 operands.Push(number);
-            else if (_operations[token].Type == OperationType.Binary)
+            else if (Operations[token].Type == OperationType.Binary)
             {
                 // Бинарные операции
                 var operand2 = operands.Pop();
                 var operand1 = operands.Pop();
-                var expression = (BinaryExpression)_operations[token];
-                if (expression.Method != null)
-                {
-                    var result = expression.Method(operand1, operand2);
-                    operands.Push(result);
-                }
+                var expression = (BinaryExpression)Operations[token];
+                var result = expression.Method(operand1, operand2);
+                operands.Push(result);
             }
-            else if (_operations[token].Type == OperationType.Unary)
+            else if (Operations[token].Type == OperationType.Unary)
             {
                 // Унарные операции
                 var operand = operands.Pop();
-                var expression = (UnaryExpression)_operations[token];
-                if (expression.Method != null)
-                    operands.Push(expression.Method(operand));
+                var expression = (UnaryExpression)Operations[token];
+                operands.Push(expression.Method(operand));
             }
-            else if (_operations[token].Type == OperationType.LogicalDouble)
+            else if (Operations[token].Type == OperationType.OtherLogical)
+            {
+                // Унарные операции
+                var operand = operands.Pop() != 0.0;
+                var expression = (OtherLogicalExpression)Operations[token];
+                operands.Push(expression.Method(operand) ? 1 : 0);
+            }
+            else if (Operations[token].Type == OperationType.LogicalDouble)
             {
                 // Логические операции с числами
                 var operand2 = operands.Pop();
                 var operand1 = operands.Pop();
-                var expression = (LogicalExpression<double>)_operations[token];
-                if (expression.Method != null)
-                    operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
+                var expression = (LogicalExpression<double>)Operations[token];
+                operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
             }
-            else if (_operations[token].Type == OperationType.Logical)
+            else if (Operations[token].Type == OperationType.Logical)
             {
                 // Логические операции
                 var operand2 = operands.Pop() != 0.0;
                 var operand1 = operands.Pop() != 0.0;
-                var expression = (LogicalExpression<bool>)_operations[token];
-                if (expression.Method != null)
-                    operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
+                var expression = (LogicalExpression<bool>)Operations[token];
+                operands.Push(expression.Method(operand1, operand2) ? 1 : 0);
             }
         }
 
         return operands.Pop();
     }
-    
+
     /// <summary>
     /// Делает лексический анализ выражения в инфиксной форме.
     /// </summary>
     /// <param name="expression">Строка в инфиксной форме</param>
     /// <returns>Список токенов</returns>
-    public List<Token> Tokenize(string expression)
+    public virtual List<Token> Tokenize(string expression)
     {
         var tokens = new List<Token>();
         expression = ConvertToPostfix(expression);
 
         foreach (var token in expression.Split(" "))
         {
-            if (string.IsNullOrWhiteSpace(token))
-                continue;
-            else if (token == "(")
-                tokens.Add(new Token(token, TokenType.LeftParenthesis));
-            else if (token == ")")
-                tokens.Add(new Token(token, TokenType.RightParenthesis));
-            else if (double.TryParse(token, out _))
-                tokens.Add(new Token(token, TokenType.Number));
-            else if (_operations[token].Type == OperationType.Binary)
-                tokens.Add(new Token(token, TokenType.Operator));
-            else if (_operations[token].Type == OperationType.Unary)
-                tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
-            else if (_operations[token].Type == OperationType.Logical || _operations[token].Type == OperationType.LogicalDouble)
-                tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
-            else
-                tokens.Add(new Token(token, TokenType.Unknown));
+            TokenizeHelper(ref tokens, token);
         }
 
         return tokens;
     }
 
+    /// <summary>
+    /// Вспомогательный метод Tokenize
+    /// </summary>
+    /// <param name="tokens">Список токенов по ссылке</param>
+    /// <param name="token">Токен</param>
+    protected void TokenizeHelper(ref List<Token> tokens, string token)
+    {
+        if (token == "(")
+            tokens.Add(new Token(token, TokenType.LeftParenthesis));
+        else if (token == ")")
+            tokens.Add(new Token(token, TokenType.RightParenthesis));
+        else if (double.TryParse(token, out _))
+            tokens.Add(new Token(token, TokenType.Number));
+        else if (Operations[token].Type == OperationType.Binary)
+            tokens.Add(new Token(token, TokenType.Operator));
+        else if (Operations[token].Type == OperationType.Unary)
+            tokens.Add(new Token(token.ToLower(), TokenType.UnaryFunction));
+        else if (Operations[token].Type == OperationType.Logical ||
+                 Operations[token].Type == OperationType.LogicalDouble)
+            tokens.Add(new Token(token.ToLower(), TokenType.LogicalFunction));
+        else
+            tokens.Add(new Token(token, TokenType.Unknown));
+    }
+
+    /// <summary>
+    /// Построение дерева лексического анализа из постфиксной записи выражения
+    ///     - переводит выражение в постфиксную запись
+    ///     - из переведенного выражения делает дерево 
+    /// </summary>
+    /// <param name="infix">Строка в инфиксной форме</param>
+    /// <returns>Строчное представление дерева</returns>
     public string BuildTree(string infix)
     {
         return BuildExpressionTree(ConvertToPostfix(infix)).ToString();
     }
-    
+
+    /// <summary>
+    /// Построение дерева из постфиксной записи выражения
+    /// </summary>
+    /// <param name="postfixExpression">Строка в постфиксной форме</param>
+    /// <returns>ExpressionNode дерево</returns>
     private ExpressionNode BuildExpressionTree(string postfixExpression)
     {
         var stack = new Stack<ExpressionNode>();
 
         foreach (var token in postfixExpression.Split(' '))
         {
-            if (_operations.ContainsKey(token))
+            if (Operations.ContainsKey(token))
             {
                 var operationNode = new ExpressionNode(token);
                 operationNode.Right = stack.Pop();

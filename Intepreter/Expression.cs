@@ -5,7 +5,7 @@
 ///     - Приоритет
 ///     - Тип выражения
 /// </summary>
-abstract class Expression
+public abstract class Expression
 {
     public int Priority;
     public OperationType Type;
@@ -21,10 +21,10 @@ abstract class Expression
 
 class BinaryExpression : Expression
 {
-    public Func<double, double, double>? Method;
+    public Func<double, double, double> Method;
 
     public BinaryExpression(int priority, 
-        Func<double, double, double>? binaryMethod,
+        Func<double, double, double> binaryMethod,
         OperationType type
         ) : base(priority, type)
     {
@@ -36,10 +36,10 @@ class BinaryExpression : Expression
 
 class UnaryExpression : Expression
 {
-    public Func<double, double>? Method;
+    public Func<double, double> Method;
 
     public UnaryExpression(int priority, 
-        Func<double, double>? unaryMethod,
+        Func<double, double> unaryMethod,
         OperationType type
     ) : base(priority, type)
     {
@@ -51,15 +51,30 @@ class UnaryExpression : Expression
 
 class LogicalExpression<T> : Expression
 {
-    public Func<T, T, bool>? Method;
+    public Func<T, T?, bool> Method;
     
     public LogicalExpression(int priority, 
-        Func<T, T, bool>? logicalMethod,
+        Func<T, T?, bool> logicalMethod,
         OperationType type
     ) : base(priority, type)
     {
         Priority = priority;
         Type = type;
         Method = logicalMethod;
+    }
+} 
+
+class OtherLogicalExpression : Expression
+{
+    public Func<bool, bool> Method;
+
+    public OtherLogicalExpression(int priority,
+        Func<bool, bool> otherLogical,
+        OperationType type
+    ) : base(priority, type)
+    {
+        Priority = priority;
+        Type = type;
+        Method = otherLogical;
     }
 }

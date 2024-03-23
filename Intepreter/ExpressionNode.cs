@@ -5,8 +5,8 @@ namespace Intepreter;
 public class ExpressionNode
 {
     public string Value { get; set; }
-    public ExpressionNode Left { get; set; }
-    public ExpressionNode Right { get; set; }
+    public ExpressionNode? Left { get; set; }
+    public ExpressionNode? Right { get; set; }
 
     public ExpressionNode(string value)
     {
@@ -24,14 +24,12 @@ public class ExpressionNode
         return result.ToString();
     }
 
-    private void ToStringHelper(ExpressionNode node, StringBuilder result, string prefix, string childrenPrefix)
+    private void ToStringHelper(ExpressionNode? node, StringBuilder? result, string prefix, string childrenPrefix)
     {
         if (node == null)
             return;
 
-        const string indentation = "    ";
-
-        result.AppendLine($"{prefix}{node.Value}");
+        result?.AppendLine($"{prefix}{node.Value}");
 
         if (node.Left != null || node.Right != null)
         {
